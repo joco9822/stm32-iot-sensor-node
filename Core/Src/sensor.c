@@ -36,6 +36,9 @@ void VEML7700_Init()
 
     HAL_I2C_Mem_Write(&hi2c1, VEML7700_ADDR, VEML7700_ALS_CONFIG, 1, (uint8_t*)inita, 2, 0xFFFF);
     // 설정 요약: Power ON, Gain 1/8, Integration Time 100ms, Power Saving OFF, Interrupt OFF
+    // [복원 메모] MSB 0b00010011이면 ALS_IT(bit 9:6) = 1100 → 실제 적분 시간은 25ms.
+    //             VEML7700_sensor()의 변환 계수 1.8432도 Gain 1/8 · 25ms 분해능과 일치한다
+    //             (100ms라면 0.4608. 240227 발표 때는 0x1000 설정에 0.4608을 썼다).
 }
 
 void Accelero_sensor(uint8_t *pDataXYZ)

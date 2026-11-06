@@ -3,8 +3,8 @@
  * 보드 내장 Wi-Fi 모듈(Inventek ISM43362, eS-WiFi)을 SPI3로 직접 제어해
  * AT 명령으로 AP·서버(Flask)에 연결하고, 센서값을 JSON으로 만들어 보냅니다.
  *   - PE8: Wi-Fi 모듈 리셋, PE0: SSN(CSN), PE1: CMD/DATA READY (EXTI1)
- * 노션 정리 자료에서 복원한 코드입니다. sendData(), checkWifiEvent(),
- * bigToLittle(), littleToBig()와 AT 명령 문자열(config.h)은 원본 자료에 없어 빠져 있습니다.
+ * 노션 정리 자료와 랩미팅 발표자료에서 복원한 코드입니다. checkWifiEvent(),
+ * bigToLittle(), littleToBig()와 AT 명령 문자열 일부(config.h)는 원본 자료에 없어 빠져 있습니다.
  */
 #include "main.h"
 #include "string.h"
@@ -129,6 +129,46 @@ void sendCommand(uint8_t *command, int size) {
     printf("\n\r------Command transfer complete------\n\r");
 
     HAL_Delay(1);
+}
+
+/*
+ * TCP 통신을 시작해 HTTP POST로 센서 데이터(JSON)를 보내고 연결을 종료.
+ *   DATAcommand: HTTP POST 요청 전체 (헤더 + JSON 본문)
+ *   DATAsend   : DATAcommand를 Wi-Fi 모듈로 보내기 위해 AT 명령 형식에 맞춘 문자열
+ */
+void sendData() {
+    sendCommand((uint8_t*) STARTTCPcommand, strlen(STARTTCPcommand)); // TCP client 시작
+
+    int payloadsize = strlen(POSTmid) + strlen(payloadsensors)
+            + strlen(POSTclose) - 4;
+    uint8_t DATAcommand[1000];
+    uint8_t DATAsend[1000];
+
+    memset(DATAcommand, 0, sizeof(DATAcommand));
+    memset(DATAsend, 0, sizeof(DATAsend));
+
+    strcpy(DATAcommand, POSTinit);
+    uint8_t data[10];
+    memset(data, 0, sizeof(data));
+    sprintf(data, "%d", payloadsize);
+    strcat(DATAcommand, data);
+    strcat(DATAcommand, POSTmid);
+    strcat(DATAcommand, payloadsensors);
+    strcat(DATAcommand, POSTclose);
+    strcpy(DATAsend, TCPSENDcommand);
+    memset(data, 0, sizeof(data));
+    sprintf(data, "%d", strlen(DATAcommand) - 1);
+    strcat(DATAsend, data);
+    strcat(DATAsend, DATAcommand);
+
+    sendCommand(DATAsend, strlen(DATAsend));
+    sendCommand((uint8_t*) CLOSETCPcommand, strlen(CLOSETCPcommand));
+
+    HAL_Delay(TIME_INTERVAL);
+    indexdata = 0;
+    indexsensor = 0;
+
+    printf("http transefer complete\r\n"); // send complete
 }
 
 /* 센서값을 JSON 형식 문자열(payloadsensors)로 변환 */

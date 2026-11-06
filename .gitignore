@@ -1,0 +1,3 @@
+server/log_files/
+server/csv_files/
+__pycache__/
