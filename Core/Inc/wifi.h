@@ -1,21 +1,52 @@
 #ifndef INC_WIFI_H_
 #define INC_WIFI_H_
 
-/* 발표자료(240319)에는 WIFI_Init(), convert_json() 원형만 나와 있어
- * 나머지 원형은 wifi.c의 정의를 보고 채웠습니다. */
+#include "stdint.h"
 
-#include "main.h"
+
+
+#define SSIDcommand "C1=" SSID "\r\n"
+#define PSWcommand "C2=" PSW "\r\n"                //command to set the password
+#define SECcommad "C3=4\r\n"                      //security of the network WPA2
+#define CONNECTcommand "C0\r\n"
+
+
+#define TCPcommand "P1=0\r\n" //                        TCP
+#define IPcommand "P3=" IPgw "\r\n\n"           //  Server IP address (D0 will perform a DNS lookup on and update P3 automatically)
+#define PORTcommand "P4=" PORTgw "\r\n\n"           //  Server port
+#define STARTTCPcommand "P6=1\r\n"                      //  Start the client
+#define CLOSETCPcommand "P6=0\r\n"                       //Stop client
+
+
+#define STIMOEOUTcommand "S2=1000\r\n\n"
+#define TCPSENDcommand "S3="
+#define READBUFFERcomand "R1=100\r\n"
+#define READcommand "R0\r\n"
+
+
+#define POSTinit "\rPOST / HTTP/1.1\nHost: " IPgw ":" PORTgw "\nContent-Type: application/json\nContent-Length:"
+#define POSTmid    "\n\n{ \"iot2tangle\": [ { \"sensor\":"
+#define POSTclose  "} ] }], \"device\": \"" deviceid "\", \"timestamp\": 0  }\r\n\r\n"
+
+
 
 uint8_t WIFI_Init();
-int getWifiModuleReady();
-void startWifi();
-void sendCommand(uint8_t *command, int size);
-void sendData();
+void convert_json(uint8_t *pDataXYZ,float *pGyroDataXYZ,float *temp_value, float *humidity_value, uint32_t *lux);
 
-void convert_json(uint8_t *pDataXYZ, float *pGyroDataXYZ, float *temp_value,
-        float *humidity_value, uint32_t *lux);
-void setSensor(uint8_t *name);
+int checkWifiEvent(uint8_t * input, uint8_t *event, int size);
+int getWifiModuleReady();
+
+void startWifi();
+
+void sendCommand(uint8_t *command,int size);
+void bigToLittle(uint8_t *input, uint8_t *output, int size);
+void littleToBig(uint8_t *input, uint8_t *output, int size);
+
+
 void setDataInt(uint8_t *payload, int data);
+void sendData();
 void setDataFloat(uint8_t *payload, float data);
+void setSensor(uint8_t *name);
+
 
 #endif /* INC_WIFI_H_ */

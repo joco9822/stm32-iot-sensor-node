@@ -1,26 +1,27 @@
+/*
+ * config.h
+ *
+ *  Created on: 19 feb 2021
+ *      Author: Raul Rosa
+ */
+
 #ifndef INC_CONFIG_H_
 #define INC_CONFIG_H_
 
-/*
- * config.h (발췌)
- * 발표자료(240409)에 나온 HTTP POST 문자열만 복원했습니다.
- * 아래 항목은 원본 자료에 값이 없어 빠져 있습니다.
- *   - IPgw, PORTgw, deviceid       : Flask 서버 주소·포트, 장치 ID
- *   - TIME_INTERVAL                : 전송 간격(ms)
- *   - eS-WiFi AT 명령 (끝은 <CR>)
- *       SSIDcommand     C1=<SSID>                 Set Network SSID
- *       PSWcommand      C2=<Passphrase>           Set Network Passphrase
- *       SECcommad       C3=<Security Mode>        Set Network Security Type
- *       CONNECTcommand  C0                        Join a Network
- *       TCPcommand      P1=<Protocol>             Set Transport Protocol
- *       IPcommand       P3=<xxx.xxx.xxx.xxx>      Set Transport Remote Host IP Address
- *       PORTcommand     P4=<Port>                 Set Transport Remote Port Number
- *       STARTTCPcommand, TCPSENDcommand, CLOSETCPcommand : TCP client 시작·데이터 전송·종료
- */
 
-/* HTTP POST 요청: POSTinit + <본문 길이> + POSTmid + payloadsensors + POSTclose */
-#define POSTinit  "\rPOST / HTTP/1.1\nHost: " IPgw ":" PORTgw "\nContent-Type: application/json\nContent-Length:"
-#define POSTmid   "\n\n{ \"iot2tangle\": [ { \"sensor\":"
-#define POSTclose "} ] }], \"device\": \"" deviceid "\", \"timestamp\": 0  }\r\n\r\n"
+
+/* 공개 저장소용으로 실제 값은 자리표시자로 바꿨습니다. 사용 시 환경에 맞게 수정하세요. */
+#define SSID "YOUR_WIFI_SSID"            //name of the wifi
+#define PSW "YOUR_WIFI_PASSWORD"         //Wifi Password
+#define IPgw "192.168.0.100" //Ip address of the gateway (Flask 서버 IP)
+#define PORTgw "8000"         //Port of the address
+#define deviceid "456"          //the whitelist of the device in the GW
+#define TIME_INTERVAL 1000 //time in ms between each data sent to GW
+
+
+
+
+
+
 
 #endif /* INC_CONFIG_H_ */
